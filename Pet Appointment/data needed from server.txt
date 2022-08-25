@@ -1,0 +1,136 @@
+Vets data:
+
+var vets = {now: [], later: []};
+(line 1363)
+
+We build the vets data on the following lines:
+1423 - 1479
+
+For vets.now[] and vets.later[], each element in the array is this kind of object:
+{
+	name: <string>, //The vet's name.
+	sub: <string>,	//Subtitle text under the vet's name. "Licensed Veterinarian" in demo.
+	desc: <string>,	//The vet's "about me" text.
+	img: <string>,	//The url to the vet's profile picture.
+	id: <string>,	//The vet's ID the form submits. Demo currently uses "001, 002", etc.
+	city: <string>,	//The veterinarian's city. Popup only.
+	state: <string>,//The veterinarian's state, as two letters (MN, IL, etc). Popup only.
+	price: <int>,	//The vet's price. Popup only.
+	contacts: <string>,//Which platforms you can use to contact the vet. Popup only.
+	payments: <string>,//Which platforms you can use to pay the vet. Popup only.
+	review[]	//This vet's reviews. Each element in the array is a review object.
+}
+
+For vets.now[i].review[] and vets.later[i].review[], each element in the array is this kind of object:
+{
+	name: <string>,	//The reviewer's name.
+	date: <string>,	//The date the review was left in MM/D/YY format, or any format you want.
+	text: <string>	//The review itself.
+}
+
+============
+
+Months and Dates data:
+
+The month and dates auto-generating stuff can be left in, unless you need the server to control it. It's accurate as far as I can tell. You will need to provide or leave intact this data.
+
+The months are <int> from 0 to 11.
+
+var dates = [];			//Array of "days" from now until 6th month anniversary of today.
+(line 1364)
+
+var verbosemonth = []<string>;	//Array of the names of months, from January to December.
+(line 1394)
+
+var verboseweekday = []<string>;//Array of the names of days of the week, from SUN to SAT.
+(line 1395)
+
+var chosenmonth = <int>;	//The currently active month.
+(line 1406)
+
+var availablemonths = []<int>;	//Array of months from January of this year to 6 months from now.
+(line 1407)
+
+var firstavailablemonth = <int>;//The first month we can choose from. Probably current month.
+(line 1417)
+
+function initMonth(days);	//How many days? Takes an <int>.
+(line 1483)
+
+We build the months data on the following lines:
+1390 - 1421	//Initialize our prerequisites. (What month is it now? Array of months, etc.)
+
+We build the dates data with month data inserted, on the following lines:
+1481 - 1561
+
+For dates[], each element in the array is this type of object:
+{
+	month: <int>,	//The month that the date takes place in, from 0-11, 
+	date: <int>,	//A date. From today until the chosen number of days.(Currently 6months.)
+	weekday: <int>,	//The day of the week, from 0-6.
+	hours[],	//Array of integers each representing an hour. From 1-12.
+	minutes[],	//Array of integers each representing a minute.(Currently increments 15.)
+	ampm[],		//Array of strings, each either "am" or "pm". (After midnight or prior.)
+	index: <int>	//Array of integers, starting at 0 today, +1 every day. (For tracking.)
+}
+
+When we run initMonth(days) with a number, we generate an array that many days long, starting with today, then the next day, then the next, etc etc.
+
+For example, we're currently doing from now until the 6 month anniversary of today. As of 04/04/22, this is 184 days.
+
+A for loop runs. On each iteration, an object is pushed into the array with the relevant data:
+The new date, what month the new date in, what its weekday is, and the current loop index.
+
+(The index is used for tracking purposes while building UI stuff. Having this "index" was the only neat way I could accomplish this.)
+
+============
+
+Times data:
+
+If the minutes are 0, we use the string "00" instead during UI building. If you plan to use minutes other than 15 minute increments (starting at 0), this can be repurposed to make anything under 10 into a string with a leading 0.
+(line 1840)
+
+While our initMonth(days) is running, we are also currently building a set of hours and minutes for each day. This time slot building code is the following lines:
+1491 - 1497	//Randomly deciding on a few hours to insert into the day that's being pushed.
+1501 - 1537	//Randomly picking a minute to insert for each hour, in 15 minute increments.
+		//Converting from 24 hours to 12, and selecting am or pm.
+
+You can have the javascript or the server supply the months/dates/weekdays/index. The server will need to provide the hours/minutes/ampm for each date. 
+
+Once you have the above dates[] array of objects being properly supplied, you should remove these two blocks of code that generates time slots.
+
+The javascript converting the 24 hours to 12 and deciding am/pm could be repurposed if you make the server provide 24 hour format.
+
+============
+
+Dates/Times for the "later" vet we're viewing on the lightbox, are not in yet.
+
+function displayCurrentMonthDates()
+(line 1733)
+
+Unfortunately, Per-vet Dates/Times isn't in yet. For the demonstration, we're just using one global dates[] for everything. You won't notice the difference. But when it's time to go live, every "later" vet will need their own dates[] array.
+
+displayCurrentMonthDates() will need to be modified slightly.
+
+It'll be an easy fix. Within displayCurrentMonthDates(), just do this somewhere near the top:
+
+if(customlightbox64whole)
+{
+	var dates = vets.later[i].dates; //i would be the current vet, passed in a parameter.
+}
+else			//This else is needed due to hoisting.
+{
+	var dates = window.dates
+}
+
+When the particular vet's dates[] is delivered from the server is up to you. It just has to be there by the time the lightbox calls displayCurrentMonthDates().
+
+Currently, displayCurrentMonthDates() has no easy way to take in which vet we're viewing on the lightbox (i). But that can be added easily enough. Just give it a parameter.
+
+Then on line 1261 within buildcustomlightbox64(i, availablenow), use i as the parameter:
+displayCurrentMonthDates(i);
+
+You'll also need to do this on line 1700 and 1723.
+displayCurrentMonthDates(i);
+
+I believe this should get you by. The displayCurrentMonthDates() on line 1261 is run when the lightbox is created. On lines 1700 and 1723, those are onclicks added to both the normal form and the lightbox.

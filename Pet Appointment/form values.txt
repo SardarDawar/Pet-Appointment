@@ -1,0 +1,66 @@
+input name:	value		visible text.
+======
+
+The first input chosen determines the inputs available for the second set.
+
+customdate:	asap		"As soon as possible."
+ |
+ V
+customvet:	asap		"Talk to first available."
+customvet:	choosevet	"Select a veterinarian to contact you."
+
+======
+
+customdate:	later		"Schedule for later."
+ |
+ V
+
+latervet:	daytime		"Request appointment time."
+latervet:	choosevet	"Select a vet and book an appointment."
+
+======
+
+=============
+Hidden Inputs
+=============
+
+The second input chosen determines the possible hidden input.
+The hidden input is populated by what is clicked in the custom vets/dates/times box.
+
+customvet:	asap		"Talk to first available."
+ |
+ V
+No hidden values.
+
+======
+
+customvet:	choosevet	"Select a veterinarian to contact you."
+ |
+ V
+vetid: (The vet's ID number.)
+
+======
+
+latervet:	daytime		"Request appointment time."
+ |
+ V
+app[month]: (The month from 0-11.)
+app[date]: (The day of the month from 1-31.)
+app[hour]: (The hour.)
+app[minutes]: The minutes past the hour.
+app[ampm]: ("am" or "pm".)
+
+======
+
+latervet:	choosevet	"Select a vet and book an appointment."
+ |
+ V
+app[month]: (The month from 0-11.)
+app[date]: (The day of the month from 1-31.)
+app[hour]: (The hour.)
+app[minutes]: The minutes past the hour.
+app[ampm]: ("am" or "pm".)
+vetid: (The vet's ID number.)
+
+(For display purposes, booking a "later" appointment uses some input fields with no names.
+These do not submit values.)
